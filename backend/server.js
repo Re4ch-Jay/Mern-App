@@ -3,6 +3,7 @@ const express = require('express')
 const app = express();
 const morgan = require('morgan')
 const wortkoutRoutes = require('./routes/workoutRoutes')
+const userRoutes = require('./routes/userRoutes')
 const mongoose = require('mongoose');
 
 
@@ -16,5 +17,6 @@ app.use(morgan('dev'))
 app.use(express.json())
 
 app.use('/api/workouts', wortkoutRoutes)
+app.use('/api/user', userRoutes)
 
 

@@ -5,6 +5,9 @@ const {
     UPDATE_WORKOUT,
     DELETE_WORKOUT,
     GET_SINGLE_WORKOUT} = require('../controllers/workoutControllers')
+const requireAuth = require("../middleware/requireAuth")
+
+router.use(requireAuth)
 
 router.get('/', GET_WORKOUTS)
 

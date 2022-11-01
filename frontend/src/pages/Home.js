@@ -1,34 +1,52 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import WorkoutDetails from '../Components/WorkoutDetails'
 import axios from "axios"
 import Form from '../Components/Form'
 import { WorkoutContext } from '../context/WorkoutContext'
-import {useNavigate} from 'react-router-dom'
-
-
+import {motion} from "framer-motion"
+import { AuthContext } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 function Home() {
   const {workouts, dispatch} = useContext(WorkoutContext)
+  const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true)
+  const {user} = useContext(AuthContext)
   const navigate = useNavigate()
-
   useEffect(() => {
+    
     const workout = async () => {
-     await axios.get('api/workouts')
+     await axios.get('api/workouts', {
+      headers: {'Authorization': `Bearer ${user.token}`}
+     })
       .then(res => {
+        if(res.data){
         console.log(res.data);
         dispatch({type: "getWorkout", payload: res.data})
+        setIsLoading(null)
+        setError(null)}
       })
-      .catch(err => {
-        console.log(err)
-        navigate('/404')
+      .catch(error => {
+        console.log(error.response.data.error)
+        setError(error.response.data.error)
+        setIsLoading(null)
       })
-     
     }
-    workout()
- }, [dispatch, navigate])
+    if(user) workout() 
+    
+
+ }, [dispatch, user, navigate])
+
 
   return (
-    <div className='home'>
-     
+    <motion.div className='home'
+    initial={{x: "100vw"}}
+    animate={{x: 0}}
+    exit={{ x: "-100vw"}}
+    transition={{delay: 0.5, type: "spring"}}
+    >
+      {error && <div className='error center'>{error}</div>}
+      {isLoading && <h4>Loading...</h4>}
+      {!error &&
       <div className='workouts'>
         {workouts && workouts.map(workout => (
           <div key={workout._id}>
@@ -36,8 +54,9 @@ function Home() {
           </div>
         ))}  
       </div>
-      <Form/>
-    </div> 
+      }
+      {!error && <Form/>}
+    </motion.div> 
   )
 }
 

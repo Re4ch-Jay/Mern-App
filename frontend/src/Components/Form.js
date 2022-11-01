@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react'
 import axios from 'axios'
 import { WorkoutContext } from '../context/WorkoutContext'
+import { AuthContext } from '../context/AuthContext'
 
 function Form() {
     const {dispatch} = useContext(WorkoutContext)
@@ -10,15 +11,19 @@ function Form() {
     const [errorTitle, setErrorTitle] = useState(null)
     const [errorLoad, setErrorLoad] = useState(null)
     const [errorReps, setErrorReps] = useState(null)
+    const {user} = useContext(AuthContext)
 
     const addWorkout = async (e) => {
         e.preventDefault()
-
         !title ? setErrorTitle('Title is required') : setErrorTitle(null) 
         !load ? setErrorLoad('Load is required') : setErrorLoad(null) 
         !reps ? setErrorReps('Reps is required') : setErrorReps(null) 
         
-        await axios.post('/api/workouts', {title, reps, load})
+        await axios.post('/api/workouts', {title, reps, load}, {
+          headers: {
+            "Authorization": `Bearer ${user.token}`
+          }
+        })
           .then(res => {
             console.log(res);
             setTitle('')
